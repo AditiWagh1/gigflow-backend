@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: gigflow_mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: gigflow
+
+  backend:
+    build: .
+    container_name: gigflow_backend
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/gigflow
+      JWT_SECRET: change_this_to_a_strong_random_secret
+      JWT_EXPIRES_IN: 7d
+      NODE_ENV: production
+      FRONTEND_URL: http://localhost:3000
+
+volumes:
+  mongo_data:
